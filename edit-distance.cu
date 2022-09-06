@@ -1,7 +1,6 @@
 #include "edit-distance.h"
 
-#include <THC/THC.h>
-
+#include <c10/cuda/CUDAStream.h>
 #include <cuda.h>
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
@@ -430,7 +429,7 @@ void StripSeparatorCuda(
         torch::Tensor length,
         torch::Tensor separator) {
     const auto batch_size = source.size(0);
-    auto stream = at::cuda::getCurrentCUDAStream(source.device().index());
+    auto stream = c10::cuda::getCurrentCUDAStream(source.device().index());
     AT_DISPATCH_ALL_TYPES(source.scalar_type(), "strip_separator", ([&] {
         strip_separator_kernel<scalar_t><<<1, batch_size, 0, stream>>>(
             source.data<scalar_t>(),
